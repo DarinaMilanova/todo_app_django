@@ -1,6 +1,6 @@
 # 📝 My To-Do App
 
-A feature-rich Django-based To-Do application with user authentication, dark mode, dashboards, and password reset functionality.
+A Django-based To-Do application with user authentication, dark mode, dashboards, and password reset functionality.
 
 ---
 
