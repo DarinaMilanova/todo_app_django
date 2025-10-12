@@ -1,0 +1,102 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="page-title">📊 Dashboard</h2>
+
+    <!-- Motivational Quote -->
+    <div class="alert alert-success text-center fw-semibold quote-box">
+        💡 "{{ quote }}"
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Today's Completion -->
+        <div class="col-md-6 d-flex justify-content-center">
+            <div class="card shadow-sm p-3 completion-card">
+                <h5 class="card-title text-center">Today's Completion</h5>
+                <div class="d-flex align-items-center">
+                    <!-- Battery -->
+                    <div class="battery-container small-battery">
+                        <div class="battery-level
+                            {% if battery_level > 70 %}battery-green
+                            {% elif battery_level > 30 %}battery-yellow
+                            {% else %}battery-red{% endif %}"
+                            style="width: {{ battery_level }}%;">
+                        </div>
+                        <div class="battery-tip"></div>
+                    </div>
+                    <div class="ms-3">
+                        <p class="mb-0">
+                            <strong>{{ stats.daily_completion_rate }}%</strong>
+                            ({{ stats.daily_completed }} of {{ stats.daily_total }} tasks)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Deadlines -->
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3 deadlines-card">
+                <h5 class="card-title">Upcoming Deadlines</h5>
+                {% if upcoming_deadlines %}
+                    <ul class="list-group list-group-flush mt-2">
+                        {% for task in upcoming_deadlines %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ task.title|truncatechars:30 }}
+                                <span class="badge bg-primary">{{ task.due_date|date:"M d, Y" }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mt-2">No upcoming deadlines 🎉</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Overview + Category Breakdown -->
+    <div class="row g-4 mt-3">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3 overview-card">
+                <h5 class="card-title">Overview</h5>
+                <ul class="list-group list-group-flush mt-2">
+                    <li class="list-group-item">Total <strong>{{ stats.total }}</strong></li>
+                    <li class="list-group-item">Completed <strong>{{ stats.completed }}</strong></li>
+                    <li class="list-group-item">Pending <strong>{{ stats.pending }}</strong></li>
+                    <li class="list-group-item">Overdue <strong>{{ stats.overdue }}</strong></li>
+                    <li class="list-group-item">Due Today <strong>{{ stats.due_today }}</strong></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <h5 class="card-title">Tasks by Category</h5>
+                <canvas id="categoryBarChart" class="mt-3"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('categoryBarChart').getContext('2d');
+    const categoryData = {
+        labels: {{ category_labels|safe }},
+        datasets: [{
+            label: 'Tasks',
+            data: {{ category_values|safe }},
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    };
+    new Chart(ctx, { type: 'bar', data: categoryData, options: { scales: { y: { beginAtZero: true } } }});
+</script>
+{% endblock %}

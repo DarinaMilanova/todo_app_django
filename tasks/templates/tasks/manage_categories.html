@@ -1,0 +1,42 @@
+{% extends 'tasks/base.html' %}
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Title + Add Category Form Row -->
+    <div class="row align-items-center header-row">
+        <div class="col">
+            <h2 class="page-title mb-0">Manage Categories</h2>
+        </div>
+        <div class="col-auto">
+            <!-- Add Category Form -->
+            <form method="post" class="d-flex gap-2 mb-0">
+                {% csrf_token %}
+                <label for="category_name" class="visually-hidden">Category Name</label>
+                <input type="text"
+                       name="name"
+                       id="category_name"
+                       class="form-control category-input"
+                       placeholder="New category name"
+                       required>
+                <button type="submit" class="btn btn-primary manage-categories-add">+ Add</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category List -->
+    <div class="category-list">
+        {% for category in categories %}
+            <div class="category-item d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="category-dot badge-category-{{ category.name|slugify }}"></span>
+                    <span class="category-name">{{ category.name }}</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'edit_category' category.id %}" class="btn btn-warning btn-sm">✎ Edit</a>
+                    <a href="{% url 'delete_category' category.id %}" class="btn btn-danger btn-sm">🗑 Delete</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

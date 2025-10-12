@@ -1,0 +1,109 @@
+{% extends 'tasks/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Title + Filters Row -->
+    <div class="d-flex justify-content-between align-items-center header-row">
+        <h2 class="page-title mb-0">Your Tasks</h2>
+        <div class="d-flex flex-wrap gap-2">
+            <form method="GET" action="" class="d-flex flex-grow-1 gap-2">
+                <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ request.GET.q }}">
+
+                <!-- Category filter -->
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <!-- Status filter -->
+                <select name="status" class="form-select">
+                    <option value="" {% if request.GET.status == '' %}selected{% endif %}>All Tasks</option>
+                    <option value="pending" {% if request.GET.status == 'pending' or not request.GET.status %}selected{% endif %}>Pending</option>
+                    <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="due_soon" {% if request.GET.status == 'due_soon' %}selected{% endif %}>Due Soon</option>
+                    <option value="overdue" {% if request.GET.status == 'overdue' %}selected{% endif %}>Overdue</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+
+            <a href="{% url 'create_task' %}?from=list" class="btn btn-primary">+ Add Task</a>
+        </div>
+    </div>
+
+    <!-- Tasks Grid -->
+    {% if tasks %}
+    <div class="row g-3">
+        {% for task in tasks %}
+            <div class="col-md-4">
+                <div class="task-card h-100
+                    {% if task.completed %}border-success
+                    {% elif task.due_date and task.due_date < today %}border-danger
+                    {% elif task.due_date and task.due_date <= today_plus_2 %}border-warning
+                    {% endif %}
+                    d-flex flex-column
+                ">
+
+                    <!-- Title + Badges -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">{{ task.title|truncatechars:20 }}</h5>
+                        <div class="badge-container">
+                            {% if task.category %}
+                                <span class="badge badge-category-{{ task.category.name|slugify }}">{{ task.category.name }}</span>
+                            {% endif %}
+                            {% if task.completed %}
+                                <span class="badge badge-completed">Completed</span>
+                            {% elif task.due_date and task.due_date < today %}
+                                <span class="badge badge-overdue">Overdue</span>
+                            {% elif task.due_date and task.due_date <= today_plus_2 %}
+                                <span class="badge badge-due-soon">Due Soon</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    {% if task.description %}
+                        <p class="task-desc">{{ task.description|truncatechars:200 }}</p>
+                    {% endif %}
+
+
+                    <div class="flex-grow-1"></div>
+
+                    <!-- Footer -->
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <p class="text-muted mb-0 small">
+                            {% if task.completed %}
+                                Completed on {{ task.completed_at|date:"M d, Y" }}
+                            {% elif task.due_date %}
+                                Due: {{ task.due_date|date:"M d, Y" }}
+                            {% endif %}
+                        </p>
+                        <div class="d-flex gap-1">
+                            {% if task.completed %}
+                                <a href="{% url 'toggle_complete' task.id %}" class="btn btn-warning btn-sm">⟳ Undo</a>
+                            {% else %}
+                                <a href="{% url 'toggle_complete' task.id %}" class="btn btn-success btn-sm">✓ Done</a>
+                            {% endif %}
+                            <a href="{% url 'update_task' task.id %}" class="btn btn-primary btn-sm">✎</a>
+                            <a href="{% url 'delete_task' task.id %}" class="btn btn-danger btn-sm">🗑</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <div class="empty-message text-center mt-5">
+            <p class="no-tasks-message">No tasks yet. 🌱 Create your first task and start getting things done!</p>
+
+            <a href="{% url 'create_task' %}?from=list" class="btn btn-primary mt-3">+ Create Task</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
