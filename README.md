@@ -4,6 +4,13 @@ A Django-based To-Do application with user authentication, dark mode, dashboards
 
 ---
 
+**Live Demo:** https://todo-app-django-ngft.onrender.com/login/?next=/
+
+**Demo Account**
+- Username: demo
+- Password: DemoPass123!
+
+
 ## 🚀 Features
 
 - ✅ Create, update, delete, and manage personal tasks
